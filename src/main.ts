@@ -11,8 +11,9 @@ async function bootstrap() {
   const version = configService.getVersion();
 
   const config = new DocumentBuilder()
-    .setTitle('The Fake Shop authentication services')
-    .setDescription('The Fake Shop authentication services API')
+    .setTitle('The Fake Shop base services')
+    .setDescription('The Fake Shop base services API')
+    .addBearerAuth()
     .setVersion(version)
     .build();
 
