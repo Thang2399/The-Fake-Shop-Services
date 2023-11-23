@@ -4,6 +4,7 @@ export const CREATE_ITEM_MESSAGE = {
 
 export const GET_ITEM = {
   NOT_FOUND_ITEM: 'NOT_FOUND_ITEM',
+  ITEM_OUT_OF_STOCK: 'ITEM_OUT_OF_STOCK',
 };
 
 export const ITEMS_MESSAGE = {
