@@ -22,7 +22,6 @@ import { PaginationDefaultEnum } from '@/src/common/enum/pagination.enum';
 export class ItemsServices {
   constructor(@InjectModel(Item.name) private itemModel: Model<ItemDocument>) {}
   async getListItems(query: GetListItemsDto, res: Response) {
-    console.log('querry', query);
     const { page, limit, search, orderBy, orderType } = query;
 
     const skip = (page - 1) * limit;
@@ -37,14 +36,6 @@ export class ItemsServices {
 
     sortOptions[`${orderType}`] = orderBy || PaginationDefaultEnum.OrderBy;
 
-    // if (orderType) {
-    //   if (!orderType) {
-    //     sortOptions['field'] = 'updatedAt';
-    //   }
-    //   sortOptions['direction'] =
-    //     orderBy === PaginationOrderByValues.DESC ? -1 : 1;
-    // }
-
     const listItems = await this.itemModel
       .find(queryOptions)
       .sort(sortOptions)
@@ -52,7 +43,6 @@ export class ItemsServices {
       .limit(limit)
       .exec();
 
-    console.log('listItems', listItems);
     return res.json(listItems);
   }
 
@@ -64,6 +54,20 @@ export class ItemsServices {
       });
     }
     return specificItem;
+  }
+
+  async getListItemsByIdsAndQuantities(
+    listItems: { itemId: string; itemQuantity: number }[],
+  ) {
+    const query = listItems.map((item) => ({
+      _id: item.itemId,
+      quantity: { $gte: item.itemQuantity },
+    }));
+
+    const listFoundItemsByIds = await this.itemModel
+      .find({ $or: query })
+      .exec();
+    return listFoundItemsByIds;
   }
 
   async deleteItems(dto: DeleteItemsDto) {
