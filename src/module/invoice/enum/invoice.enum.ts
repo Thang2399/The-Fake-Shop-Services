@@ -10,12 +10,10 @@ export enum Shipping_Method_Enum {
 }
 
 export enum Invoice_Status {
-  RECEIVED_ORDER = 'received order',
-  CHECKING_IN_STOCK = 'checking in stock',
-  PREPARING_ITEMS = 'preparing items',
-  PACKAGED_ITEMS = 'packaged items',
-  DELIVERING = 'delivering',
-  DELIVERED_SUCCESS = 'delivered successfully',
-  DELIVERED_FAILED = 'delivered failed',
-  FINISHED = 'finished',
+  RECEIVED_ORDER = 'RECEIVED_ORDER',
+  PREPARING_ITEMS = 'PREPARING_ITEMS',
+  DELIVERING = 'DELIVERING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  CANCELED_OUT_OF_STOCK = 'CANCELED_OUT_OF_STOCK',
 }
