@@ -17,6 +17,7 @@ import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
 import { PaginationDefaultEnum } from '@/src/common/enum/pagination.enum';
+import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
 
 @Injectable()
 export class ItemsServices {
@@ -68,6 +69,50 @@ export class ItemsServices {
       .find({ $or: query })
       .exec();
     return listFoundItemsByIds;
+  }
+
+  async getListPurchasedItemsData(queryList: IPurchaseItem[][]) {
+    // Flatten the array of criteria to get an array of item IDs
+    const itemIds = [
+      ...new Set(
+        [].concat(
+          queryList.map((criteria) => criteria.map((item) => item.itemId)),
+        ),
+      ),
+    ];
+
+    const listFoundItems = await Promise.all(
+      itemIds.map(async (itemsIds: string[]) => {
+        const items = await this.itemModel
+          .find({ _id: { $in: itemsIds } })
+          .exec();
+        return items;
+      }),
+    );
+
+    const listFoundItemsWithQueryQuantity = [
+      ...new Set(
+        [].concat(
+          listFoundItems.map((foundItems: any[]) => {
+            const list = foundItems.map((item: any, index: number) => {
+              const specificItemFromQuery = queryList[index].find(
+                (query: IPurchaseItem) => {
+                  return query.itemId == item._id ? query : null;
+                },
+              );
+              const toObjItem = item.toObject();
+              const itemWithQueryQuantity = {
+                ...toObjItem,
+                quantity: specificItemFromQuery.itemQuantity,
+              };
+              return itemWithQueryQuantity;
+            });
+            return list;
+          }),
+        ),
+      ),
+    ];
+    return listFoundItemsWithQueryQuantity;
   }
 
   async deleteItems(dto: DeleteItemsDto) {

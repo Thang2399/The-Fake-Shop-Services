@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateInvoiceDto } from '@/src/module/invoice/dto/create-invoice.dto';
 import { InvoiceService } from '@/src/module/invoice/service/invoice.service';
 import { Response } from 'express';
 import { GetListInvoicesDto } from '@/src/module/invoice/dto/get-list-invoices.dto';
+import { UpdateInvoiceStatusDto } from '@/src/module/invoice/dto/update-invoice-status.dto';
 
 @ApiTags('Invoice API')
 @Controller('invoice')
@@ -29,5 +39,21 @@ export class InvoiceController {
     @Res() res: Response,
   ) {
     return this.invoiceService.getListInvoices(query, res);
+  }
+
+  @ApiOperation({
+    description: 'Update invoice status',
+  })
+  @ApiBody({
+    type: UpdateInvoiceStatusDto,
+  })
+  @ApiParam({ name: 'id', description: 'Invoice Id', type: String })
+  @Put('/:id')
+  async updateInvoiceStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateInvoiceStatusDto,
+    @Res() res: Response,
+  ) {
+    return this.invoiceService.updateInvoiceStatus(id, dto, res);
   }
 }

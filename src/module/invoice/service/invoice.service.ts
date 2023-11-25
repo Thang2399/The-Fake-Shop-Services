@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateInvoiceDto } from '@/src/module/invoice/dto/create-invoice.dto';
 import { Response } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { Invoice, InvoiceDocument } from '@/src/schema/invoice.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { ItemsServices } from '@/src/module/item/service/items.service';
 import { Item, ItemDocument } from '@/src/schema/item.schema';
 import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
@@ -11,6 +16,9 @@ import { ITEMS_MESSAGE } from '@/src/common/message/items/items.message';
 import * as dayjs from 'dayjs';
 import { PaginationDefaultEnum } from '@/src/common/enum/pagination.enum';
 import { GetListInvoicesDto } from '@/src/module/invoice/dto/get-list-invoices.dto';
+import { UpdateInvoiceStatusDto } from '@/src/module/invoice/dto/update-invoice-status.dto';
+import { INVOICE_MESSAGE } from '@/src/common/message/invoice/invoice.message';
+import { Invoice_Status } from '@/src/module/invoice/enum/invoice.enum';
 
 @Injectable()
 export class InvoiceService {
@@ -30,48 +38,20 @@ export class InvoiceService {
     return newInvoice;
   }
 
-  async getListPurchasedItemsData(queryList: IPurchaseItem[][]) {
-    // Flatten the array of criteria to get an array of item IDs
-    const itemIds = [
-      ...new Set(
-        [].concat(
-          queryList.map((criteria) => criteria.map((item) => item.itemId)),
-        ),
-      ),
-    ];
-
-    const listFoundItems = await Promise.all(
-      itemIds.map(async (itemsIds: string[]) => {
-        const items = await this.itemModel
-          .find({ _id: { $in: itemsIds } })
-          .exec();
-        return items;
-      }),
+  async handleOutOfStockItems(
+    listPurchaseItems: IPurchaseItem[],
+    listFoundItemsIds: string[],
+  ) {
+    const listNotFoundItems = listPurchaseItems.filter(
+      (item: IPurchaseItem) => {
+        const notFoundItem = !listFoundItemsIds.includes(item.itemId);
+        return notFoundItem;
+      },
     );
-
-    const listFoundItemsWithQueryQuantity = [
-      ...new Set(
-        [].concat(
-          listFoundItems.map((foundItems: any[]) => {
-            const list = foundItems.map((item: any, index: number) => {
-              const specificItemFromQuery = queryList[index].find(
-                (query: IPurchaseItem) => {
-                  return query.itemId == item._id ? query : null;
-                },
-              );
-              const toObjItem = item.toObject();
-              const itemWithQueryQuantity = {
-                ...toObjItem,
-                quantity: specificItemFromQuery.itemQuantity,
-              };
-              return itemWithQueryQuantity;
-            });
-            return list;
-          }),
-        ),
-      ),
-    ];
-    return listFoundItemsWithQueryQuantity;
+    throw new BadRequestException({
+      message: ITEMS_MESSAGE.GET_ITEM.ITEM_OUT_OF_STOCK,
+      data: listNotFoundItems,
+    });
   }
 
   async createInvoice(dto: CreateInvoiceDto, res: Response) {
@@ -86,16 +66,10 @@ export class InvoiceService {
     );
 
     if (listItemsFromDatabase.length < listPurchaseItems.length) {
-      const listNotFoundItems = listPurchaseItems.filter(
-        (item: IPurchaseItem) => {
-          const notFoundItem = !listFoundItemsIds.includes(item.itemId);
-          return notFoundItem;
-        },
+      return await this.handleOutOfStockItems(
+        listPurchaseItems,
+        listFoundItemsIds,
       );
-      throw new BadRequestException({
-        message: ITEMS_MESSAGE.GET_ITEM.ITEM_OUT_OF_STOCK,
-        data: listNotFoundItems,
-      });
     } else {
       const invoiceId = this.createInvoiceId();
 
@@ -146,9 +120,8 @@ export class InvoiceService {
       return item.listPurchaseItems;
     });
 
-    const listPurchasedItemsData = await this.getListPurchasedItemsData(
-      listPurchasedItems,
-    );
+    const listPurchasedItemsData =
+      await this.itemsServices.getListPurchasedItemsData(listPurchasedItems);
 
     const convertListInvoicesWithPurchasedItemsData = await Promise.all(
       listInvoices.map((invoice: InvoiceDocument, index: number) => {
@@ -162,5 +135,105 @@ export class InvoiceService {
     );
 
     return res.json(convertListInvoicesWithPurchasedItemsData);
+  }
+
+  async updateInvoiceStatus(
+    id: string,
+    dto: UpdateInvoiceStatusDto,
+    res: Response,
+  ) {
+    const { invoiceNewStatus } = dto;
+    const specificInvoice = await this.invoiceModel.findById(id);
+
+    if (!specificInvoice) {
+      throw new NotFoundException({
+        message: INVOICE_MESSAGE.NOT_FOUND_INVOICE,
+      });
+    } else {
+      const { listPurchaseItems, invoiceStatus } = specificInvoice;
+      console.log('invoiceStatus', invoiceStatus);
+
+      const listItemsFromDatabase =
+        await this.itemsServices.getListItemsByIdsAndQuantities(
+          listPurchaseItems,
+        );
+
+      // check whether the invoice has not been handled yet
+      // the items ordered in the invoice were out of stock
+      if (
+        listItemsFromDatabase.length < listPurchaseItems.length &&
+        invoiceStatus === Invoice_Status.RECEIVED_ORDER
+      ) {
+        const updatedCancelInvoice = await this.invoiceModel
+          .findByIdAndUpdate(
+            id,
+            {
+              invoiceStatus: Invoice_Status.CANCELED_OUT_OF_STOCK,
+              updatedAt: new Date().toISOString(),
+            },
+            { new: true },
+          )
+          .exec();
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          message: INVOICE_MESSAGE.ITEMS_OUT_OF_STOCK,
+          data: updatedCancelInvoice,
+        });
+      } else {
+        console.log('listItemsFromDatabase', listItemsFromDatabase);
+        console.log('listPurchaseItems', listPurchaseItems);
+
+        //   packing items: minus the items quantities in the database with the quantity of ordered items
+        const bulkUpdateOps = [];
+        if (invoiceNewStatus === Invoice_Status.PREPARING_ITEMS) {
+          // In MongoDB, the $inc operator is an update operator that increments the value of a field by a specified amount
+
+          listPurchaseItems.forEach((item: IPurchaseItem) => {
+            bulkUpdateOps.push({
+              updateOne: {
+                filter: { _id: new mongoose.Types.ObjectId(item.itemId) },
+                update: { $inc: { quantity: -item.itemQuantity } },
+              },
+            });
+          });
+
+          // bulkWrite: execute a series of write operations on a MongoDB collection as a single batch
+          await this.itemModel.bulkWrite(bulkUpdateOps);
+        }
+        //   refund items: add the items quantities in the database with the quantity of ordered items
+        else if (invoiceNewStatus === Invoice_Status.FAILED) {
+          listPurchaseItems.forEach((item: IPurchaseItem) => {
+            bulkUpdateOps.push({
+              updateOne: {
+                filter: { _id: new mongoose.Types.ObjectId(item.itemId) },
+                update: { $inc: { quantity: +item.itemQuantity } },
+              },
+            });
+          });
+          await this.itemModel.bulkWrite(bulkUpdateOps);
+        }
+        // update other invoice status
+        const updateInvoice = await this.invoiceModel
+          .findByIdAndUpdate(
+            id,
+            {
+              invoiceStatus: invoiceNewStatus,
+              updatedAt: new Date().toISOString(),
+            },
+            { new: true },
+          )
+          .exec();
+
+        return res
+          .status(
+            invoiceNewStatus === Invoice_Status.FAILED
+              ? HttpStatus.BAD_REQUEST
+              : HttpStatus.ACCEPTED,
+          )
+          .json({
+            message: `${INVOICE_MESSAGE[invoiceNewStatus]}`,
+            data: updateInvoice,
+          });
+      }
+    }
   }
 }

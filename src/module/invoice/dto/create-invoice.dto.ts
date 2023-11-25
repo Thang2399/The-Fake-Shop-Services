@@ -16,7 +16,7 @@ import {
   Shipping_Method_Enum,
 } from '@/src/module/invoice/enum/invoice.enum';
 
-class PurchaseItem {
+export class PurchaseItem {
   @ApiProperty({ required: true })
   @IsString()
   itemId: string;
