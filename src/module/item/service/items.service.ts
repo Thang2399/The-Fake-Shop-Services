@@ -103,6 +103,35 @@ export class ItemsServices {
     return listFoundItemsWithQueryQuantity;
   }
 
+  async getSinglePurchasedItemsData(queryList: IPurchaseItem[]) {
+    // Flatten the array of criteria to get an array of item IDs
+    const itemIds = queryList.map((query: IPurchaseItem) => query.itemId);
+
+    const listFoundItems = await Promise.all(
+      itemIds.map(async (itemsId: string) => {
+        const items = await this.itemModel
+          .find({ _id: { $in: itemsId } })
+          .exec();
+        return items;
+      }),
+    );
+    const listFoundItemsWithQueryQuantity = listFoundItems.map(
+      (foundItem: any[]) => {
+        const foundItemObjId = foundItem[0]._id.toString();
+        const foundItemObj = foundItem[0].toObject();
+        const specificItemFromQuery = queryList.find((query: IPurchaseItem) =>
+          query.itemId === foundItemObjId ? query : null,
+        );
+        const updateFoundItemWithQuantity = {
+          ...foundItemObj,
+          quantity: specificItemFromQuery.itemQuantity,
+        };
+        return updateFoundItemWithQuantity;
+      },
+    );
+    return listFoundItemsWithQueryQuantity;
+  }
+
   async deleteItems(dto: DeleteItemsDto) {
     const ids = dto.ids;
     return await this.itemModel.deleteMany({ _id: { $in: ids } }).exec();

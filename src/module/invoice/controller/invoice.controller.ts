@@ -33,12 +33,20 @@ export class InvoiceController {
   @ApiOperation({
     description: 'Get list invoice by email',
   })
-  @Get()
+  @Get('')
   async getListInvoices(
     @Query() query: GetListInvoicesDto,
     @Res() res: Response,
   ) {
     return this.invoiceService.getListInvoices(query, res);
+  }
+
+  @ApiOperation({
+    description: 'Get detail invoice',
+  })
+  @Get('/:id')
+  async getDetailInvoice(@Param('id') id: string, @Res() res: Response) {
+    return this.invoiceService.getDetailInvoice(id, res);
   }
 
   @ApiOperation({
