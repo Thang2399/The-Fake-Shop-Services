@@ -16,33 +16,21 @@ import {
 import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
-import { PaginationDefaultEnum } from '@/src/common/enum/pagination.enum';
+import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagination.enum';
 import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
+import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
 
 @Injectable()
 export class ItemsServices {
-  constructor(@InjectModel(Item.name) private itemModel: Model<ItemDocument>) {}
+  constructor(
+    @InjectModel(Item.name) private itemModel: Model<ItemDocument>,
+    private paginationService: PaginationService,
+  ) {}
   async getListItems(query: GetListItemsDto, res: Response) {
-    const { page, limit, search, orderBy, orderType } = query;
-
-    const skip = (page - 1) * limit;
-
-    const queryOptions: any = {};
-
-    if (search) {
-      queryOptions.name = { $regex: new RegExp(search, 'i') };
-    }
-
-    const sortOptions: any = {};
-
-    sortOptions[`${orderType}`] = orderBy || PaginationDefaultEnum.OrderBy;
-
-    const listItems = await this.itemModel
-      .find(queryOptions)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const listItems = await this.paginationService.getPaginationData(
+      this.itemModel,
+      query,
+    );
 
     return res.json(listItems);
   }
@@ -153,7 +141,22 @@ export class ItemsServices {
   }
   async updateItem(id: string, dto: UpdateItemDto, res: Response) {
     const specificItem = await this.getDetailItem(id);
-    if (specificItem) {
+    const { name } = dto;
+    const existedItemWithDtoName = await this.itemModel
+      .findOne({ name })
+      .exec();
+    const existedItemWithDtoNameId =
+      existedItemWithDtoName?._id.toString() || '';
+
+    if (!specificItem) {
+      throw new NotFoundException({
+        message: ITEMS_MESSAGE.GET_ITEM.NOT_FOUND_ITEM,
+      });
+    } else if (existedItemWithDtoName && existedItemWithDtoNameId !== id) {
+      throw new BadRequestException({
+        message: ITEMS_MESSAGE.CREATE_ITEM.DUPLICATE_NAME,
+      });
+    } else {
       const updatedItem = await this.itemModel
         .findByIdAndUpdate(
           id,

@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './module/app.module';
 import { ApiConfigServices } from './config/api/api-config.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { InvoiceController } from './controller/invoice.controller';
-import { InvoiceService } from './service/invoice.service';
+import { BrandController } from './controller/brand.controller';
+import { BrandService } from './service/brand.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Invoice, InvoiceSchema } from '@/src/schema/invoice.schema';
-import { ItemsServices } from '@/src/module/item/service/items.service';
+import { Brand, BrandSchema } from '@/src/schema/brand.schema';
 import { Item, ItemSchema } from '@/src/schema/item.schema';
+import { ItemsServices } from '@/src/module/item/service/items.service';
 import { PaginationModule } from '@/src/shared/module/pagination/pagination.module';
 import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
 
@@ -12,8 +12,8 @@ import { PaginationService } from '@/src/shared/module/pagination/service/pagina
   imports: [
     MongooseModule.forFeature([
       {
-        name: Invoice.name,
-        schema: InvoiceSchema,
+        name: Brand.name,
+        schema: BrandSchema,
       },
       {
         name: Item.name,
@@ -22,7 +22,7 @@ import { PaginationService } from '@/src/shared/module/pagination/service/pagina
     ]),
     PaginationModule,
   ],
-  controllers: [InvoiceController],
-  providers: [InvoiceService, ItemsServices, PaginationService],
+  controllers: [BrandController],
+  providers: [BrandService, ItemsServices, PaginationService],
 })
-export class InvoiceModule {}
+export class BrandModule {}

@@ -14,11 +14,12 @@ import { Item, ItemDocument } from '@/src/schema/item.schema';
 import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
 import { ITEMS_MESSAGE } from '@/src/common/message/items/items.message';
 import * as dayjs from 'dayjs';
-import { PaginationDefaultEnum } from '@/src/common/enum/pagination.enum';
+import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagination.enum';
 import { GetListInvoicesDto } from '@/src/module/invoice/dto/get-list-invoices.dto';
 import { UpdateInvoiceStatusDto } from '@/src/module/invoice/dto/update-invoice-status.dto';
 import { INVOICE_MESSAGE } from '@/src/common/message/invoice/invoice.message';
 import { Invoice_Status } from '@/src/module/invoice/enum/invoice.enum';
+import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
 
 @Injectable()
 export class InvoiceService {
@@ -26,6 +27,7 @@ export class InvoiceService {
     @InjectModel(Invoice.name) private invoiceModel: Model<InvoiceDocument>,
     @InjectModel(Item.name) private itemModel: Model<ItemDocument>,
     private itemsServices: ItemsServices,
+    private paginationService: PaginationService,
   ) {}
 
   createInvoiceId() {
@@ -94,27 +96,12 @@ export class InvoiceService {
   }
 
   async getListInvoices(query: GetListInvoicesDto, res: Response) {
-    const { email, phoneNumber, page, limit, orderBy, orderType } = query;
-    const skip = (page - 1) * limit;
+    const listInvoicesData = await this.paginationService.getPaginationData(
+      this.invoiceModel,
+      query,
+    );
 
-    const queryOptions: any = {};
-    if (email) {
-      queryOptions.email = email;
-    }
-    if (phoneNumber) {
-      queryOptions.phoneNumber = phoneNumber;
-    }
-
-    const sortOptions: any = {};
-
-    sortOptions[`${orderType}`] = orderBy || PaginationDefaultEnum.OrderBy;
-
-    const listInvoices = await this.invoiceModel
-      .find(queryOptions)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const listInvoices = listInvoicesData.data;
 
     const listPurchasedItems = listInvoices.map((item: InvoiceDocument) => {
       return item.listPurchaseItems;
@@ -134,7 +121,12 @@ export class InvoiceService {
       }),
     );
 
-    return res.json(convertListInvoicesWithPurchasedItemsData);
+    const response = {
+      ...listInvoicesData,
+      data: convertListInvoicesWithPurchasedItemsData,
+    };
+
+    return res.json(response);
   }
 
   async updateInvoiceStatus(
@@ -151,7 +143,6 @@ export class InvoiceService {
       });
     } else {
       const { listPurchaseItems, invoiceStatus } = specificInvoice;
-      console.log('invoiceStatus', invoiceStatus);
 
       const listItemsFromDatabase =
         await this.itemsServices.getListItemsByIdsAndQuantities(
@@ -179,9 +170,6 @@ export class InvoiceService {
           data: updatedCancelInvoice,
         });
       } else {
-        console.log('listItemsFromDatabase', listItemsFromDatabase);
-        console.log('listPurchaseItems', listPurchaseItems);
-
         //   packing items: minus the items quantities in the database with the quantity of ordered items
         const bulkUpdateOps = [];
         if (invoiceNewStatus === Invoice_Status.PREPARING_ITEMS) {
