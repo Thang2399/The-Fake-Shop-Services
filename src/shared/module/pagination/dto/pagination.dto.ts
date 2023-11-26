@@ -2,7 +2,7 @@ import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import {
   PaginationDefaultEnum,
   PaginationOrderByValues,
-} from '@/src/common/enum/pagination.enum';
+} from '@/src/shared/module/pagination/enum/pagination.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginationDto {
