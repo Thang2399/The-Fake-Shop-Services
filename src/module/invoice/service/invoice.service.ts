@@ -14,7 +14,6 @@ import { Item, ItemDocument } from '@/src/schema/item.schema';
 import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
 import { ITEMS_MESSAGE } from '@/src/common/message/items/items.message';
 import * as dayjs from 'dayjs';
-import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagination.enum';
 import { GetListInvoicesDto } from '@/src/module/invoice/dto/get-list-invoices.dto';
 import { UpdateInvoiceStatusDto } from '@/src/module/invoice/dto/update-invoice-status.dto';
 import { INVOICE_MESSAGE } from '@/src/common/message/invoice/invoice.message';
@@ -127,6 +126,28 @@ export class InvoiceService {
     };
 
     return res.json(response);
+  }
+
+  async getDetailInvoice(id: string, res: Response) {
+    const specificInvoice = await this.invoiceModel.findById(id).exec();
+
+    if (!specificInvoice) {
+      throw new NotFoundException({
+        message: INVOICE_MESSAGE.NOT_FOUND_INVOICE,
+      });
+    } else {
+      const listPurchaseItems = specificInvoice.listPurchaseItems;
+
+      const listPurchasedItemsData =
+        await this.itemsServices.getSinglePurchasedItemsData(listPurchaseItems);
+
+      const specificInvoiceObj = specificInvoice.toObject();
+      const response = {
+        ...specificInvoiceObj,
+        listPurchaseItems: listPurchasedItemsData,
+      };
+      return res.json(response);
+    }
   }
 
   async updateInvoiceStatus(
