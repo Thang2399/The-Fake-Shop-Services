@@ -9,6 +9,7 @@ import { AuthMiddleware } from '@/src/shared/middleware/token.middleware';
 import { RoleMiddleware } from '@/src/shared/middleware/role.middleware';
 import { BrandModule } from '@/src/module/brand/brand.module';
 import { PaginationModule } from '@/src/shared/module/pagination/pagination.module';
+import { CategoryModule } from '@/src/module/category/category.module';
 
 const modules = [
   HealthModule,
@@ -16,6 +17,7 @@ const modules = [
   ItemsModule,
   InvoiceModule,
   BrandModule,
+  CategoryModule,
   MongoModule,
   PaginationModule,
 ];

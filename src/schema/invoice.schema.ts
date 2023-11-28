@@ -5,6 +5,7 @@ import {
   Payment_Method_Enum,
   Shipping_Method_Enum,
 } from '@/src/module/invoice/enum/invoice.enum';
+import {getCurrentDateTimeIsoString} from "@/src/common/utils";
 
 export type InvoiceDocument = HydratedDocument<Invoice>;
 
@@ -40,10 +41,10 @@ export class Invoice {
   @Prop({ default: Invoice_Status.RECEIVED_ORDER })
   invoiceStatus: string;
 
-  @Prop({ default: new Date().toISOString() }) // Set the default value to the current ISO date and time
+  @Prop({ default: getCurrentDateTimeIsoString() }) // Set the default value to the current ISO date and time
   createdAt?: string;
 
-  @Prop({ default: new Date().toISOString() })
+  @Prop({ default: getCurrentDateTimeIsoString() })
   updatedAt?: string;
 
   @Prop({ default: '' })
