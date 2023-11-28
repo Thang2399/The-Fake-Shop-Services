@@ -14,8 +14,8 @@ import { BRAND_MESSAGE } from '@/src/common/message/brand/brand.message';
 import { UpdateBrandDto } from '@/src/module/brand/dto/update-brand.dto';
 import { GetListBrandsDto } from '@/src/module/brand/dto/get-list-brands.dto';
 import { GetDetailBrandDto } from '@/src/module/brand/dto/get-detail-brand.dto';
-import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagination.enum';
 import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
+import { getCurrentDateTimeIsoString } from '@/src/common/utils';
 
 @Injectable()
 export class BrandService {
@@ -116,7 +116,7 @@ export class BrandService {
           id,
           {
             ...dto,
-            updatedAt: new Date().toISOString(),
+            updatedAt: getCurrentDateTimeIsoString(),
           },
           { new: true },
         )

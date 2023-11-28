@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { getCurrentDateTimeIsoString } from '@/src/common/utils';
 
 export class AbstractDto {
   @ApiProperty()
-  createdAt?: string = new Date().toISOString();
+  createdAt?: string = getCurrentDateTimeIsoString();
 
   @ApiProperty()
-  updatedAt?: string = new Date().toISOString();
+  updatedAt?: string = getCurrentDateTimeIsoString();
 }
 
 export class AbstractSoftDeleteDto extends AbstractDto {

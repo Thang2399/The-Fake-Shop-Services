@@ -67,8 +67,4 @@ export class BrandController {
   ) {
     return this.brandService.updateBrand(id, dto, res);
   }
-
-  // @ApiOperation({
-  //   description: 'Delete brand'
-  // })
 }

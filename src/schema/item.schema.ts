@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import {getCurrentDateTimeIsoString} from "@/src/common/utils";
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -26,10 +27,10 @@ export class Item {
   @Prop({ default: 0 })
   quantity: number;
 
-  @Prop({ default: new Date().toISOString() }) // Set the default value to the current ISO date and time
+  @Prop({ default: getCurrentDateTimeIsoString() }) // Set the default value to the current ISO date and time
   createdAt?: string;
 
-  @Prop({ default: new Date().toISOString() })
+  @Prop({ default: getCurrentDateTimeIsoString() })
   updatedAt?: string;
 }
 

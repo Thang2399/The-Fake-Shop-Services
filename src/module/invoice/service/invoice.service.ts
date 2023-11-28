@@ -19,6 +19,7 @@ import { UpdateInvoiceStatusDto } from '@/src/module/invoice/dto/update-invoice-
 import { INVOICE_MESSAGE } from '@/src/common/message/invoice/invoice.message';
 import { Invoice_Status } from '@/src/module/invoice/enum/invoice.enum';
 import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
+import {getCurrentDateTimeIsoString} from "@/src/common/utils";
 
 @Injectable()
 export class InvoiceService {
@@ -181,7 +182,7 @@ export class InvoiceService {
             id,
             {
               invoiceStatus: Invoice_Status.CANCELED_OUT_OF_STOCK,
-              updatedAt: new Date().toISOString(),
+              updatedAt: getCurrentDateTimeIsoString(),
             },
             { new: true },
           )
@@ -226,7 +227,7 @@ export class InvoiceService {
             id,
             {
               invoiceStatus: invoiceNewStatus,
-              updatedAt: new Date().toISOString(),
+              updatedAt: getCurrentDateTimeIsoString(),
             },
             { new: true },
           )

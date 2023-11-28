@@ -6,7 +6,7 @@ import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagin
 export class PaginationService {
   constructor() {}
 
-  async getPaginationData(model: Model<any>, query: any) {
+  async getPaginationData(model: Model<any>, query: any, options?: any) {
     const {
       page = PaginationDefaultEnum.Current_Page,
       limit = PaginationDefaultEnum.Page_Size,
@@ -34,6 +34,9 @@ export class PaginationService {
     }
     if (phoneNumber) {
       queryOptions.phoneNumber = phoneNumber;
+    }
+    if (options && options?.filterRootCategoryId) {
+      queryOptions.rootCategoryId = { $exists: false };
     }
 
     const sortOptions: any = {};

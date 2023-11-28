@@ -16,9 +16,9 @@ import {
 import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
-import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagination.enum';
 import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
 import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
+import { getCurrentDateTimeIsoString } from '@/src/common/utils';
 
 @Injectable()
 export class ItemsServices {
@@ -189,7 +189,7 @@ export class ItemsServices {
       const updatedItem = await this.itemModel
         .findByIdAndUpdate(
           id,
-          { ...dto, updatedAt: new Date().toISOString() },
+          { ...dto, updatedAt: getCurrentDateTimeIsoString() },
           { new: true },
         )
         .exec();
