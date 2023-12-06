@@ -16,7 +16,10 @@ import {
 import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
-import { IPurchaseItem } from '@/src/module/invoice/interface/invoice.interface';
+import {
+  IPurchaseItem,
+  IStoredPurchasedItem,
+} from '@/src/module/invoice/interface/invoice.interface';
 import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
 import { getCurrentDateTimeIsoString } from '@/src/common/utils';
 
@@ -46,12 +49,23 @@ export class ItemsServices {
   }
 
   async getListItemsByIdsAndQuantities(
-    listItems: { itemId: string; itemQuantity: number }[],
+    listItems:
+      | { itemId: string; itemQuantity: number }[]
+      | IStoredPurchasedItem[],
+    isNewCreateInvoice = false,
   ) {
-    const query = listItems.map((item) => ({
-      _id: item.itemId,
-      quantity: { $gte: item.itemQuantity },
-    }));
+    let query: any;
+    if (!isNewCreateInvoice) {
+      query = listItems.map((item) => ({
+        _id: item.itemId,
+        quantity: { $gte: item.itemQuantity },
+      }));
+    } else {
+      query = listItems.map((item) => ({
+        _id: item.id,
+        quantity: { $gte: item.quantity },
+      }));
+    }
 
     const listFoundItemsByIds = await this.itemModel
       .find({ $or: query })
@@ -59,13 +73,11 @@ export class ItemsServices {
     return listFoundItemsByIds;
   }
 
-  async getListPurchasedItemsData(queryList: IPurchaseItem[][]) {
+  async getListPurchasedItemsData(queryList: IStoredPurchasedItem[][]) {
     // Flatten the array of criteria to get an array of item IDs
     const itemIds = [
       ...new Set(
-        [].concat(
-          queryList.map((criteria) => criteria.map((item) => item.itemId)),
-        ),
+        [].concat(queryList.map((criteria) => criteria.map((item) => item.id))),
       ),
     ];
 
@@ -84,14 +96,14 @@ export class ItemsServices {
           listFoundItems.map((foundItems: any[]) => {
             const list = foundItems.map((item: any, index: number) => {
               const specificItemFromQuery = queryList[index].find(
-                (query: IPurchaseItem) => {
-                  return query.itemId == item._id ? query : null;
+                (query: IStoredPurchasedItem) => {
+                  return query.id == item._id ? query : null;
                 },
               );
               const toObjItem = item.toObject();
               const itemWithQueryQuantity = {
                 ...toObjItem,
-                quantity: specificItemFromQuery.itemQuantity,
+                quantity: specificItemFromQuery.quantity,
               };
               return itemWithQueryQuantity;
             });
@@ -103,9 +115,9 @@ export class ItemsServices {
     return listFoundItemsWithQueryQuantity;
   }
 
-  async getSinglePurchasedItemsData(queryList: IPurchaseItem[]) {
+  async getSinglePurchasedItemsData(queryList: IStoredPurchasedItem[]) {
     // Flatten the array of criteria to get an array of item IDs
-    const itemIds = queryList.map((query: IPurchaseItem) => query.itemId);
+    const itemIds = queryList.map((query: IStoredPurchasedItem) => query.id);
 
     const listFoundItems = await Promise.all(
       itemIds.map(async (itemsId: string) => {
@@ -119,12 +131,13 @@ export class ItemsServices {
       (foundItem: any[]) => {
         const foundItemObjId = foundItem[0]._id.toString();
         const foundItemObj = foundItem[0].toObject();
-        const specificItemFromQuery = queryList.find((query: IPurchaseItem) =>
-          query.itemId === foundItemObjId ? query : null,
+        const specificItemFromQuery = queryList.find(
+          (query: IStoredPurchasedItem) =>
+            query.id === foundItemObjId ? query : null,
         );
         const updateFoundItemWithQuantity = {
           ...foundItemObj,
-          quantity: specificItemFromQuery.itemQuantity,
+          quantity: specificItemFromQuery.quantity,
         };
         return updateFoundItemWithQuantity;
       },

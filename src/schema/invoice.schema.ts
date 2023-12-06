@@ -3,9 +3,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {
   Invoice_Status,
   Payment_Method_Enum,
+  Payment_Status,
   Shipping_Method_Enum,
 } from '@/src/module/invoice/enum/invoice.enum';
-import {getCurrentDateTimeIsoString} from "@/src/common/utils";
+import { getCurrentDateTimeIsoString } from '@/src/common/utils';
+import { IStoredPurchasedItem } from '@/src/module/invoice/interface/invoice.interface';
 
 export type InvoiceDocument = HydratedDocument<Invoice>;
 
@@ -13,6 +15,12 @@ export type InvoiceDocument = HydratedDocument<Invoice>;
 export class Invoice {
   @Prop({ required: true })
   invoiceId: string;
+
+  @Prop()
+  totalPrice: number;
+
+  @Prop({ default: '$' })
+  currency: string;
 
   @Prop({ required: true })
   userName: string;
@@ -36,10 +44,13 @@ export class Invoice {
   shippingAddress?: string;
 
   @Prop()
-  listPurchaseItems: { itemId: string; itemQuantity: number }[];
+  listPurchaseItems: IStoredPurchasedItem[];
 
   @Prop({ default: Invoice_Status.RECEIVED_ORDER })
   invoiceStatus: string;
+
+  @Prop({ default: Payment_Status.PENDING })
+  paymentStatus: string;
 
   @Prop({ default: getCurrentDateTimeIsoString() }) // Set the default value to the current ISO date and time
   createdAt?: string;

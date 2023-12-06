@@ -10,6 +10,8 @@ import { RoleMiddleware } from '@/src/shared/middleware/role.middleware';
 import { BrandModule } from '@/src/module/brand/brand.module';
 import { PaginationModule } from '@/src/shared/module/pagination/pagination.module';
 import { CategoryModule } from '@/src/module/category/category.module';
+import { StripeModule } from '@/src/module/stripe/stripe.module';
+import { PaymentModule } from '@/src/module/payment/payment.module';
 
 const modules = [
   HealthModule,
@@ -18,6 +20,7 @@ const modules = [
   InvoiceModule,
   BrandModule,
   CategoryModule,
+  PaymentModule,
   MongoModule,
   PaginationModule,
 ];
