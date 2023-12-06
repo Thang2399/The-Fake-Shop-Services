@@ -7,6 +7,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUrl,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -65,16 +66,29 @@ export class CreateInvoiceDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  discountCode?: string;
+  discountCode?: string = '';
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  shippingAddress?: string;
+  shippingAddress?: string = '';
 
   @ApiProperty({ type: () => [PurchaseItem] })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PurchaseItem)
   listPurchaseItems: PurchaseItem[];
+
+  @ApiProperty()
+  @IsInt()
+  totalPrice?: number;
+
+  @ApiProperty({ default: 'usd' })
+  @IsString()
+  currency?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsUrl()
+  redirectUrl?: string = '';
 }
