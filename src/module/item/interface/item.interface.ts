@@ -4,8 +4,9 @@ export interface IItem {
   currency?: string;
   price: number;
   imageUrl?: string;
-  brand: string;
-  category: string;
+  brandId: string;
+  categoryId: string;
+  subCategoryId: string;
   quantity: number;
   createdAt?: string;
   updatedAt?: string;

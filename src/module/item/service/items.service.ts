@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Res,
 } from '@nestjs/common';
 import { GetListItemsDto } from '@/src/module/item/dto/get-list-items.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,12 +15,10 @@ import {
 import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
-import {
-  IPurchaseItem,
-  IStoredPurchasedItem,
-} from '@/src/module/invoice/interface/invoice.interface';
+import { IStoredPurchasedItem } from '@/src/module/invoice/interface/invoice.interface';
 import { PaginationService } from '@/src/shared/module/pagination/service/pagination.service';
 import { getCurrentDateTimeIsoString } from '@/src/common/utils';
+import { FilterIsFavoriteItem } from '@/src/module/item/enum/item.enum';
 
 @Injectable()
 export class ItemsServices {
@@ -158,11 +155,11 @@ export class ItemsServices {
 
   async createItem(dto: CreateItemDto, res: Response) {
     const name = dto.name;
-    const brand = dto.brand;
+    const brandId = dto.brandId;
     const specificItem = await this.itemModel
       .findOne({
         name: name,
-        brand: brand,
+        brandId: brandId,
       })
       .exec();
 
@@ -208,5 +205,21 @@ export class ItemsServices {
         .exec();
       return res.json(updatedItem);
     }
+  }
+
+  async getListFavoriteItems(categoryId: string) {
+    const query = {
+      page: 1,
+      limit: 6,
+      isFilterFavoriteItems: FilterIsFavoriteItem.TRUE,
+    };
+
+    const listItems = await this.paginationService.getPaginationData(
+      this.itemModel,
+      query,
+      { categoryId },
+    );
+
+    return listItems;
   }
 }

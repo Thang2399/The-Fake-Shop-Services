@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { PaginationDefaultEnum } from '@/src/shared/module/pagination/enum/pagination.enum';
+import {
+  PaginationDefaultEnum,
+  PaginationFilterByRootId,
+} from '@/src/shared/module/pagination/enum/pagination.enum';
+import { FilterIsFavoriteItem } from '@/src/module/item/enum/item.enum';
 
 @Injectable()
 export class PaginationService {
@@ -16,11 +20,15 @@ export class PaginationService {
       brand = '',
       email = '',
       phoneNumber = '',
+      filterByRootId = '',
+      isFilterFavoriteItems = FilterIsFavoriteItem.DEFAULT,
     } = query;
+
+    console.log('options', options);
 
     const skip = (page - 1) * limit;
 
-    const queryOptions: any = {};
+    let queryOptions: any = {};
     if (search) {
       queryOptions.name = { $regex: new RegExp(search, 'i') };
     }
@@ -35,8 +43,24 @@ export class PaginationService {
     if (phoneNumber) {
       queryOptions.phoneNumber = phoneNumber;
     }
-    if (options && options?.filterRootCategoryId) {
-      queryOptions.rootCategoryId = { $exists: false };
+
+    if (filterByRootId === PaginationFilterByRootId.TRUE) {
+      queryOptions = {
+        ...queryOptions,
+        $or: [
+          { rootCategoryId: { $exists: false } }, // rootCategoryId does not exist
+          { rootCategoryId: '' }, // rootCategoryId is an empty string
+        ],
+      };
+    }
+
+    if (
+      isFilterFavoriteItems !== FilterIsFavoriteItem.DEFAULT &&
+      options.categoryId
+    ) {
+      queryOptions.isFavoriteItem =
+        isFilterFavoriteItems === FilterIsFavoriteItem.TRUE;
+      queryOptions.categoryId = options.categoryId;
     }
 
     const sortOptions: any = {};

@@ -10,8 +10,10 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -24,8 +26,12 @@ import { CreateItemDto } from '@/src/module/item/dto/create-item.dto';
 import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
+import { AuthMiddleware } from '@/src/shared/middleware/auth.middleware';
+import { TokenGuard } from '@/src/shared/guard/token.guard';
+import { RoleGuard } from '@/src/shared/guard/role.guard';
 
 @ApiTags('Items API')
+@ApiBearerAuth()
 @Controller('items')
 export class ItemsController {
   constructor(private itemsServices: ItemsServices) {}
@@ -33,6 +39,7 @@ export class ItemsController {
   @ApiOperation({
     description: 'Get list items',
   })
+  // @UseGuards(RoleGuard)
   @Get('')
   async getListItems(@Query() query: GetListItemsDto, @Res() res: Response) {
     return this.itemsServices.getListItems(query, res);

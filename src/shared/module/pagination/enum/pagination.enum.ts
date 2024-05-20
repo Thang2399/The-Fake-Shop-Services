@@ -3,6 +3,12 @@ export enum PaginationOrderByValues {
   DESC = 'desc',
 }
 
+export enum PaginationFilterByRootId {
+  TRUE = 'true',
+  FALSE = 'false',
+  DEFAULT = '',
+}
+
 export enum PaginationDefaultEnum {
   Current_Page = 1,
   Page_Size = 10,

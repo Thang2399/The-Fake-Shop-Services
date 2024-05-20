@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsString } from 'class-validator';
 import { Expose } from 'class-transformer';
 
 export class UpdateItemDto {
@@ -21,20 +21,36 @@ export class UpdateItemDto {
   @ApiProperty()
   @IsString()
   @Expose()
+  description?: string;
+
+  @ApiProperty()
+  @IsString()
+  @Expose()
   imageUrl?: string;
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   @Expose()
-  brand?: string;
+  brandId: string;
 
   @ApiProperty()
   @IsString()
   @Expose()
-  category?: string;
+  categoryId?: string;
+
+  @ApiProperty()
+  @IsString()
+  @Expose()
+  subCategoryId?: string;
 
   @ApiProperty()
   @IsInt()
   @Expose()
   quantity?: number;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  @Expose()
+  isFavoriteItem: boolean;
 }

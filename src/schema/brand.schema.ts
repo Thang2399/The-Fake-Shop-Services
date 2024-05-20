@@ -4,6 +4,11 @@ import { getCurrentDateTimeIsoString } from '@/src/common/utils';
 
 export type BrandDocument = HydratedDocument<Brand>;
 
+export class CategoryId {
+  @Prop({ required: true })
+  categoryId: string;
+}
+
 @Schema()
 export class Brand {
   @Prop({ required: true, unique: true })
@@ -14,6 +19,9 @@ export class Brand {
 
   @Prop()
   brandIcon?: string;
+
+  @Prop({ type: [CategoryId], default: [] })
+  categoryIdList?: CategoryId[];
 
   @Prop({ default: getCurrentDateTimeIsoString() }) // Set the default value to the current ISO date and time
   createdAt?: string;

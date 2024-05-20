@@ -1,5 +1,6 @@
+import { IItem } from '@/src/module/item/interface/item.interface';
+
 export interface ISubCategory {
-  subCategoryName?: string;
   subCategoryId?: string;
 }
 
@@ -8,5 +9,7 @@ export interface ICategory {
   categoryName: string;
   createdAt?: string;
   updatedAt?: string;
-  subCategories?: ISubCategory[];
+  subCategories?: { subCategoryId?: string }[];
+  brands?: { brandId: string }[];
+  listFavoriteItems?: IItem[];
 }
