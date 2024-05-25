@@ -4,6 +4,12 @@ export enum Payment_Method_Enum {
   CASH = 'cash',
 }
 
+export enum Payment_Status {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
 export enum Shipping_Method_Enum {
   AT_HOME = 'at_home',
   AT_STORE = 'at_store',

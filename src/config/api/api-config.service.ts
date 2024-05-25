@@ -50,4 +50,10 @@ export class ApiConfigServices {
   //     ),
   //   };
   // }
+
+  getStripeSecretKey() {
+    return (
+      this.configService.get(Config_Constants_Enum.STRIPE_SECRET_KEY) || ''
+    );
+  }
 }

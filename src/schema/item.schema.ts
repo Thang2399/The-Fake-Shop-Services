@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import {getCurrentDateTimeIsoString} from "@/src/common/utils";
+import { getCurrentDateTimeIsoString } from '@/src/common/utils';
 
 export type ItemDocument = HydratedDocument<Item>;
 
