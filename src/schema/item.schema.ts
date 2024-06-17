@@ -16,16 +16,25 @@ export class Item {
   price: number;
 
   @Prop()
+  description?: string;
+
+  @Prop()
   imageUrl?: string;
 
   @Prop({ required: true })
-  brand: string;
+  brandId: string;
 
-  @Prop()
-  category: string;
+  @Prop({ required: true })
+  categoryId: string;
+
+  @Prop({ required: true })
+  subCategoryId: string;
 
   @Prop({ default: 0 })
   quantity: number;
+
+  @Prop({ default: false })
+  isFavoriteItem: boolean;
 
   @Prop({ default: getCurrentDateTimeIsoString() }) // Set the default value to the current ISO date and time
   createdAt?: string;

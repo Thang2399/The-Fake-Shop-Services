@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsArray, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class CategoryId {
+  @ApiProperty({ required: true })
+  @IsString()
+  categoryId: string;
+}
 
 export class CreateBrandDto {
   @ApiProperty({ required: true })
@@ -13,4 +20,10 @@ export class CreateBrandDto {
   @ApiProperty()
   @IsString()
   brandIcon?: string;
+
+  @ApiProperty({ type: () => [CategoryId] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CategoryId)
+  categoryIdList?: CategoryId[] = [];
 }

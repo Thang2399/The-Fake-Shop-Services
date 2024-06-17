@@ -5,16 +5,18 @@ import { Expose, Type } from 'class-transformer';
 export class SubCategory {
   @ApiProperty({ required: true })
   @IsString()
+  @Expose()
   subCategoryId: string;
 }
 
 export class Brand {
   @ApiProperty({ required: true })
   @IsString()
+  @Expose()
   brandId: string;
 }
 
-export class CreateCategoryDto {
+export class UpdateCategoryDto {
   @ApiProperty({ required: true })
   @IsString()
   @Expose()

@@ -6,10 +6,12 @@ export type CategoryDocument = HydratedDocument<Category>;
 
 export class SubCategory {
   @Prop()
-  subCategoryName?: string;
-
-  @Prop()
   subCategoryId?: string;
+}
+
+export class Brand {
+  @Prop({ required: true })
+  brandId: string;
 }
 
 @Schema()
@@ -22,6 +24,9 @@ export class Category extends AbstractSchema {
 
   @Prop({ type: [SubCategory], default: [] })
   subCategories?: SubCategory[];
+
+  @Prop({ type: [Brand], default: [] })
+  brands?: Brand[];
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);
