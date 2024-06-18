@@ -6,7 +6,7 @@ import {
   Post,
   Put,
   Query,
-  Res,
+  Res, UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { BrandService } from '@/src/module/brand/service/brand.service';
@@ -15,6 +15,7 @@ import { CreateBrandDto } from '@/src/module/brand/dto/create-brand.dto';
 import { UpdateBrandDto } from '@/src/module/brand/dto/update-brand.dto';
 import { GetDetailBrandDto } from '@/src/module/brand/dto/get-detail-brand.dto';
 import { GetListBrandsDto } from '@/src/module/brand/dto/get-list-brands.dto';
+import { RoleGuard } from '@/src/shared/guard/role.guard';
 
 @ApiTags('Brand API')
 @Controller('brand')
@@ -48,6 +49,7 @@ export class BrandController {
   @ApiBody({
     type: CreateBrandDto,
   })
+  @UseGuards(RoleGuard)
   @Post('')
   async createBrand(@Body() dto: CreateBrandDto, @Res() res: Response) {
     return this.brandService.createBrand(dto, res);
@@ -59,6 +61,7 @@ export class BrandController {
   @ApiBody({
     type: UpdateBrandDto,
   })
+  @UseGuards(RoleGuard)
   @Put('/:id')
   async updateBrand(
     @Param('id') id: string,

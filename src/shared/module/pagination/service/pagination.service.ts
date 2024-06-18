@@ -24,8 +24,6 @@ export class PaginationService {
       isFilterFavoriteItems = FilterIsFavoriteItem.DEFAULT,
     } = query;
 
-    console.log('options', options);
-
     const skip = (page - 1) * limit;
 
     let queryOptions: any = {};

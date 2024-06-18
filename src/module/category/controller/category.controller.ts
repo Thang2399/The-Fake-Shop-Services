@@ -6,7 +6,7 @@ import {
   Post,
   Put,
   Query,
-  Res,
+  Res, UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -15,6 +15,7 @@ import { CategoryService } from '@/src/module/category/service/category.service'
 import { GetListCategoriesDto } from '@/src/module/category/dto/get-list-categories.dto';
 import { GetCategoriesWithTypicalItemsDto } from '@/src/module/category/dto/get-categories-typical-items.dto';
 import { UpdateCategoryDto } from '@/src/module/category/dto/update-category.dto';
+import { RoleGuard } from '@/src/shared/guard/role.guard';
 
 @ApiTags('Category API')
 @Controller('category')
@@ -26,6 +27,7 @@ export class CategoryController {
   @ApiBody({
     type: CreateCategoryDto,
   })
+  @UseGuards(RoleGuard)
   @Post('')
   async createCategory(@Body() dto: CreateCategoryDto, @Res() res: Response) {
     return this.categoryService.createCategory(dto, res);
@@ -69,6 +71,7 @@ export class CategoryController {
   @ApiBody({
     type: UpdateCategoryDto,
   })
+  @UseGuards(RoleGuard)
   @Put('/:id')
   async updateCategory(
     @Param('id') id: string,
