@@ -17,7 +17,6 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { GetListItemsDto } from '@/src/module/item/dto/get-list-items.dto';
@@ -26,8 +25,6 @@ import { CreateItemDto } from '@/src/module/item/dto/create-item.dto';
 import { Response } from 'express';
 import { DeleteItemsDto } from '@/src/module/item/dto/delete-items.dto';
 import { UpdateItemDto } from '@/src/module/item/dto/update-item.dto';
-import { AuthMiddleware } from '@/src/shared/middleware/auth.middleware';
-import { TokenGuard } from '@/src/shared/guard/token.guard';
 import { RoleGuard } from '@/src/shared/guard/role.guard';
 
 @ApiTags('Items API')
@@ -39,7 +36,6 @@ export class ItemsController {
   @ApiOperation({
     description: 'Get list items',
   })
-  // @UseGuards(RoleGuard)
   @Get('')
   async getListItems(@Query() query: GetListItemsDto, @Res() res: Response) {
     return this.itemsServices.getListItems(query, res);
@@ -60,6 +56,7 @@ export class ItemsController {
   @ApiBody({
     type: DeleteItemsDto,
   })
+  @UseGuards(RoleGuard)
   @Delete('')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteItems(@Body() dto: DeleteItemsDto) {
@@ -72,7 +69,8 @@ export class ItemsController {
   @ApiBody({
     type: CreateItemDto,
   })
-  @Post('/create-item')
+  @UseGuards(RoleGuard)
+  @Post('/')
   @HttpCode(HttpStatus.CREATED)
   async createItem(@Body() dto: CreateItemDto, @Res() res: Response) {
     return this.itemsServices.createItem(dto, res);
@@ -85,7 +83,8 @@ export class ItemsController {
     type: UpdateItemDto,
   })
   @ApiParam({ name: 'id', description: 'Item ID', type: String })
-  @Put('/update-item/:id')
+  @UseGuards(RoleGuard)
+  @Put('/:id')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateItem(
     @Param('id') id: string,
