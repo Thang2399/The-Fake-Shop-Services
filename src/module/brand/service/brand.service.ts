@@ -22,7 +22,6 @@ export class BrandService {
   constructor(
     @InjectModel(Brand.name) private brandModel: Model<BrandDocument>,
     @InjectModel(Item.name) private itemModel: Model<ItemDocument>,
-    private itemsServices: ItemsServices,
     private paginationService: PaginationService,
   ) {}
 

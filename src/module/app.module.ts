@@ -12,6 +12,7 @@ import { StripeModule } from '@/src/module/stripe/stripe.module';
 import { PaymentModule } from '@/src/module/payment/payment.module';
 import { AuthMiddleware } from '@/src/shared/middleware/auth.middleware';
 import { TokenMiddleware } from '@/src/shared/middleware/token.middleware';
+import { UserAddressModule } from '@/src/module/userAddress/userAddress.module';
 
 const modules = [
   HealthModule,
@@ -20,6 +21,7 @@ const modules = [
   InvoiceModule,
   BrandModule,
   CategoryModule,
+  UserAddressModule,
   PaymentModule,
   MongoModule,
   PaginationModule,
@@ -33,6 +35,6 @@ const modules = [
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply the AuthMiddleware to all routes
-    // consumer.apply(TokenMiddleware).forRoutes('*');
+    consumer.apply(TokenMiddleware).forRoutes('*');
   }
 }
