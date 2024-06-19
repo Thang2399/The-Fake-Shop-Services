@@ -22,6 +22,7 @@ export class PaginationService {
       phoneNumber = '',
       filterByRootId = '',
       isFilterFavoriteItems = FilterIsFavoriteItem.DEFAULT,
+      userId = '',
     } = query;
 
     const skip = (page - 1) * limit;
@@ -40,6 +41,9 @@ export class PaginationService {
     }
     if (phoneNumber) {
       queryOptions.phoneNumber = phoneNumber;
+    }
+    if (userId) {
+      queryOptions.userId = userId;
     }
 
     if (filterByRootId === PaginationFilterByRootId.TRUE) {

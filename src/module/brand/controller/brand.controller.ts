@@ -6,9 +6,16 @@ import {
   Post,
   Put,
   Query,
-  Res, UseGuards,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { BrandService } from '@/src/module/brand/service/brand.service';
 import { Response } from 'express';
 import { CreateBrandDto } from '@/src/module/brand/dto/create-brand.dto';
@@ -18,6 +25,7 @@ import { GetListBrandsDto } from '@/src/module/brand/dto/get-list-brands.dto';
 import { RoleGuard } from '@/src/shared/guard/role.guard';
 
 @ApiTags('Brand API')
+@ApiBearerAuth()
 @Controller('brand')
 export class BrandController {
   constructor(private brandService: BrandService) {}

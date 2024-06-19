@@ -8,7 +8,13 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateInvoiceDto } from '@/src/module/invoice/dto/create-invoice.dto';
 import { InvoiceService } from '@/src/module/invoice/service/invoice.service';
 import { Response } from 'express';
@@ -16,6 +22,7 @@ import { GetListInvoicesDto } from '@/src/module/invoice/dto/get-list-invoices.d
 import { UpdateInvoiceStatusDto } from '@/src/module/invoice/dto/update-invoice-status.dto';
 
 @ApiTags('Invoice API')
+@ApiBearerAuth()
 @Controller('invoice')
 export class InvoiceController {
   constructor(private invoiceService: InvoiceService) {}
