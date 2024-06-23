@@ -29,7 +29,7 @@ import { RoleGuard } from '@/src/shared/guard/role.guard';
 
 @ApiTags('Items API')
 @ApiBearerAuth()
-@Controller('items')
+@Controller('item')
 export class ItemsController {
   constructor(private itemsServices: ItemsServices) {}
 

@@ -1,7 +1,6 @@
 export enum Payment_Method_Enum {
   COD = 'cod',
   CARD = 'card',
-  CASH = 'cash',
 }
 
 export enum Payment_Status {
@@ -11,8 +10,8 @@ export enum Payment_Status {
 }
 
 export enum Shipping_Method_Enum {
-  AT_HOME = 'at_home',
-  AT_STORE = 'at_store',
+  AT_HOME = 'at-home',
+  AT_STORE = 'at-store',
 }
 
 export enum Invoice_Status {
