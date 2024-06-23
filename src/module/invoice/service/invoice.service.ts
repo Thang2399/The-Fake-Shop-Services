@@ -143,7 +143,7 @@ export class InvoiceService {
       else {
         const line_items = listFoundItems.map((item: IStoredPurchasedItem) => {
           const price_data = {
-            currency: currency,
+            currency: 'usd',
             unit_amount: item.price * 100,
             product_data: {
               name: item.name,
@@ -155,6 +155,7 @@ export class InvoiceService {
             quantity: item.quantity,
           };
         });
+
         const createPaymentDto = {
           invoiceId: newInvoice._id.toString(),
           totalInvoicePrice: totalPrice,
@@ -329,7 +330,9 @@ export class InvoiceService {
             });
         } else {
           const resRedirectUrl = new URL(redirectUrl);
-          return res.redirect(`${resRedirectUrl.toString()}/${id}`);
+          return res.redirect(
+            `${resRedirectUrl.toString()}/${id}?payment=success`,
+          );
         }
       }
     }
