@@ -100,7 +100,7 @@ export class ItemsServices {
               const toObjItem = item.toObject();
               const itemWithQueryQuantity = {
                 ...toObjItem,
-                quantity: specificItemFromQuery.quantity,
+                quantity: specificItemFromQuery?.quantity,
               };
               return itemWithQueryQuantity;
             });
