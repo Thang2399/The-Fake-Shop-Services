@@ -55,7 +55,6 @@ export class CategoryController {
   @ApiOperation({
     description: 'Get list categories',
   })
-  @UseGuards(RoleGuard)
   @Get('')
   async getListCategories(
     @Query() query: GetListCategoriesDto,

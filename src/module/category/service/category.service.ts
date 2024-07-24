@@ -88,6 +88,8 @@ export class CategoryService {
         return {
           _id: subCategory._id,
           categoryName: subCategory.categoryName,
+          brandId:
+            subCategory.brands.length > 0 ? subCategory.brands[0].brandId : '',
         };
       }),
     );
@@ -243,6 +245,28 @@ export class CategoryService {
         const brands = category.brands;
         if (brands.length > 0) {
           brandsData = await this.getBrandsData(brands);
+          brandsData = brandsData.map(
+            (brand: { _id: string; brandName: string }) => {
+              const subCategoriesWithSpecificBrandId = subCategoriesData.filter(
+                (subCategory: {
+                  _id: string;
+                  categoryName: string;
+                  brandId: string;
+                }) => {
+                  if (subCategory.brandId === brand._id) {
+                    return {
+                      _id: subCategory._id,
+                      categoryName: subCategory.categoryName,
+                    };
+                  }
+                },
+              );
+              return {
+                ...brand,
+                subCategories: subCategoriesWithSpecificBrandId,
+              };
+            },
+          );
         }
 
         const listFavoriteItems = await this.itemsServices.getListFavoriteItems(
@@ -254,7 +278,6 @@ export class CategoryService {
           categoryName: category.categoryName,
           createdAt: category.createdAt,
           updatedAt: category.updatedAt,
-          subCategories: subCategoriesData,
           brands: brandsData,
           listFavoriteItems: listFavoriteItems.data,
         };
